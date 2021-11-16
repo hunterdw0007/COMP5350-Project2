@@ -9,3 +9,4 @@ import sys
 filename = sys.argv[1]
 
 print("it worked")
+print("test")
