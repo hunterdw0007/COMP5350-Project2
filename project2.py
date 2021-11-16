@@ -27,10 +27,11 @@ with open(filename, 'rb') as f:
         try:
             header.append(i)
             print(binascii.hexlify(header).decode('ascii'))
+            # TODO Implement way for searching past first index and always reach EOF
             print('Start Offset: ' + hex(s.index(header)))
             header.pop()
         except ValueError:
-            print("Not Found")
+            print("EOF")
             header.pop()
 
 
