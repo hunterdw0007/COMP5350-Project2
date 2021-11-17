@@ -24,69 +24,93 @@ image_size = os.path.getsize(filename)
 def MPGRecovery():
     print('\nMPG File locations:')
     with open(filename, 'rb') as f:
+        total = 0
+
         s = f.read()
 
         # ID3 MP3
         print('\nID3 MP3:')
         try:
             index = 0
+            count = 0
             while True:
                 index = s.index('\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
-                f.seek(index + 6, 0)
-                filesize = f.read(4)
-                # TODO Upgrade to Python 3
-                filesizeint = int.from_bytes(filesize, "big")
-                print('Filesize: ' + hex(filesizeint))
+                # f.seek(index + 6, 0)
+                # filesize = f.read(4)
+                # # TODO Upgrade to Python 3
+                # filesizeint = int.from_bytes(filesize, "big")
+                # print('Filesize: ' + hex(filesizeint))
+                # print('End Offset: ' + hex(index + filesizeint))
                 index += 3
+                count += 1
         except ValueError:
             print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
         # M4A
         print('\nM4A')
         try:
             index = 0
+            count = 0
             while True:
                 index = s.index('\x66\x74\x79\x70\x4D\x34\x41\x20', index)
                 print('Start Offset: ' + hex(index - 4))
                 index += 8
+                count += 1
         except ValueError:
             print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
         # CD MPEG-1
         print('\nCD MPEG-1:')
         try:
             index = 0
+            count = 0
             while True:
                 index = s.index('\x52\x49\x46\x46', index)
                 print('Start Offset: ' + hex(index))
                 index += 4
+                count += 1
         except ValueError:
             print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
         # DVD MPEG-2
         print('\nDVD MPEG-2:')
         try:
             index = 0
+            count = 0
             while True:
                 index = s.index('\x00\x00\x01\xBA ', index)
                 print('Start Offset: ' + hex(index))
                 index = s.index('\x00\x00\x01\xB9', index + 4)
                 print('End Offset: ' + hex(index))
                 index += 4
+                count += 1
         except ValueError:
             print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
         # MP4 MPEG-4
         print('\nMP4 MPEG-4:')
         try:
             index = 0
+            count = 0
             while True:
                 index = s.index('\x66\x74\x79\x70\x6D\x70\x34\x32', index)
                 print('Start Offset: ' + hex(index - 4))
                 index += 8
+                count += 1
         except ValueError:
             print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
+        print('\nTotal MPG types found: ' + str(total))
     return 0
 
 #PDF
@@ -95,13 +119,16 @@ def PDFRecovery():
     with open(filename, 'rb') as f:
         try:
             index = 0
+            count = 0
             s = f.read()
             while True:
                 index = s.index('\x25\x50\x44\x46', index)
                 print('Start Offset: ' + hex(index))
                 index += 4
+                count += 1
         except ValueError:
             print("EOF")
+        print('\nTotal PDF types found: ' + str(count))
     return 0
 
 #BMP
