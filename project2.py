@@ -26,6 +26,17 @@ filename = sys.argv[1]
 #finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
 
+#Helper Code
+# https://stuffivelearned.org/doku.php?id=misc:synchsafe
+def unsynchsafe(num):
+    out = 0
+    mask = 0x7f000000
+    for i in range(4):
+        out >>= 1
+        out |= num & mask
+        mask >>= 8
+    return out
+
 #MPG
 def MPGRecovery():
     print('\nMPG File locations:')
@@ -42,10 +53,9 @@ def MPGRecovery():
             while True:
                 index = s.index(b'\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
-                f.seek(index + 6, 0)
-                filesize = f.read(4)
-                filesizeint = int.from_bytes(filesize, "big")
-                print('Filesize: ' + str(filesizeint))
+                synchsafefilesize = int.from_bytes(s[index + 6:index + 11], "big")
+                filesizeint = unsynchsafe(synchsafefilesize)
+                print('Filesize: ' + hex(filesizeint))
                 print('End Offset: ' + hex(index + filesizeint))
                 print('\n')
                 index += 3
