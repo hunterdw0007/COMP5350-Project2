@@ -8,6 +8,12 @@
 # https://www.geeksforgeeks.org/file-handling-python/
 # https://id3.org/id3v2.3.0
 
+# Recovery Steps
+# 1. Scan disk image to find index of file header which is the start offset
+# 2. Use the properties of the header to find the file size of that file
+# 3. Use the file size to calculate the end offset
+# 4. Collect the specified bytes and write those to a file
+
 #imports
 import sys
 import os
@@ -34,14 +40,14 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
-                index = s.index('\x49\x44\x33', index)
+                index = s.index(b'\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
-                # TODO Upgrade to Python 3
-                # f.seek(index + 6, 0)
-                # filesize = f.read(4)
-                # filesizeint = int.from_bytes(filesize, "big")
-                # print('Filesize: ' + hex(filesizeint))
-                # print('End Offset: ' + hex(index + filesizeint))
+                f.seek(index + 6, 0)
+                filesize = f.read(4)
+                filesizeint = int.from_bytes(filesize, "big")
+                print('Filesize: ' + str(filesizeint))
+                print('End Offset: ' + hex(index + filesizeint))
+                print('\n')
                 index += 3
                 count += 1
         except ValueError:
@@ -55,7 +61,7 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
-                index = s.index('\x66\x74\x79\x70\x4D\x34\x41\x20', index)
+                index = s.index(b'\x66\x74\x79\x70\x4D\x34\x41\x20', index)
                 print('Start Offset: ' + hex(index - 4))
                 index += 8
                 count += 1
@@ -70,7 +76,7 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
-                index = s.index('\x52\x49\x46\x46', index)
+                index = s.index(b'\x52\x49\x46\x46', index)
                 print('Start Offset: ' + hex(index))
                 index += 4
                 count += 1
@@ -85,9 +91,9 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
-                index = s.index('\x00\x00\x01\xBA ', index)
+                index = s.index(b'\x00\x00\x01\xBA ', index)
                 print('Start Offset: ' + hex(index))
-                index = s.index('\x00\x00\x01\xB9', index + 4)
+                index = s.index(b'\x00\x00\x01\xB9', index + 4)
                 print('End Offset: ' + hex(index))
                 index += 4
                 count += 1
@@ -102,7 +108,7 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
-                index = s.index('\x66\x74\x79\x70\x6D\x70\x34\x32', index)
+                index = s.index(b'\x66\x74\x79\x70\x6D\x70\x34\x32', index)
                 print('Start Offset: ' + hex(index - 4))
                 index += 8
                 count += 1
@@ -122,7 +128,7 @@ def PDFRecovery():
             count = 0
             s = f.read()
             while True:
-                index = s.index('\x25\x50\x44\x46', index)
+                index = s.index(b'\x25\x50\x44\x46', index)
                 print('Start Offset: ' + hex(index))
                 index += 4
                 count += 1
