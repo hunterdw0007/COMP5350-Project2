@@ -11,6 +11,7 @@
 #imports
 import sys
 import os
+import struct
 
 # this is where the name of the disk image will come in
 filename = sys.argv[1]
@@ -20,9 +21,6 @@ filename = sys.argv[1]
 image_size = os.path.getsize(filename)
 
 #MPG
-
-# If you read this you will realize that I changed it completely and that is because we did it totally wrong
-
 def MPGRecovery():
     print('\nMPG File locations:')
     with open(filename, 'rb') as f:
@@ -35,6 +33,10 @@ def MPGRecovery():
             while True:
                 index = s.index('\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
+                # f.seek(index + 6, 0)
+                # filesize = f.read(4)
+                # filesizeint = struct.unpack('>I', filesize)
+                # print('Filesize: ' + str(hex(filesizeint[0])))
                 index += 3
         except ValueError:
             print("EOF")
@@ -69,7 +71,7 @@ def MPGRecovery():
                 index = s.index('\x00\x00\x01\xBA ', index)
                 print('Start Offset: ' + hex(index))
                 index = s.index('\x00\x00\x01\xB9', index + 4)
-                print('End Index: ' + hex(index))
+                print('End Offset: ' + hex(index))
                 index += 4
         except ValueError:
             print("EOF")
