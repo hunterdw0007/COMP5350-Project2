@@ -13,10 +13,11 @@ import binascii
 
 # this is where the name of the disk image will come in
 filename = sys.argv[1]
+#filename = 'Project2.dd'
 
 #finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
-print('File size is: ' + str(image_size) + ' bytes')
+print('File size is: ' + str(hex(image_size)) + ' bytes')
 
 #MPG
 print('\nMPG File locations:')
@@ -27,21 +28,29 @@ with open(filename, 'rb') as f:
         try:
             header.append(i)
             print(binascii.hexlify(header).decode('ascii'))
-            # TODO Implement way for searching past first index and always reach EOF
-            print('Start Offset: ' + hex(s.index(header)))
-            header.pop()
+            # TODO fix problem where it finds way too many things 
+            index = 0
+            while True:
+                index = s.index(header, index)
+                print('Start Offset: ' + hex(index))
+                index += 4
         except ValueError:
             print("EOF")
             header.pop()
 
 
-
-
 #PDF
 print('\nPDF File Locations:')
 with open(filename, 'rb') as f:
-    s = f.read()
-    print('Start Offset: ' + hex(s.index(b'\x25\x50\x44\x46')))
+    try:
+        index = 0
+        s = f.read()
+        while True:
+            index = s.index('\x25\x50\x44\x46', index)
+            print('Start Offset: ' + hex(index))
+            index += 4
+    except ValueError:
+        print("EOF")
 
 #BMP
 #GIF
