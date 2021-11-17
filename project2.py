@@ -36,9 +36,9 @@ def MPGRecovery():
             while True:
                 index = s.index('\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
+                # TODO Upgrade to Python 3
                 # f.seek(index + 6, 0)
                 # filesize = f.read(4)
-                # # TODO Upgrade to Python 3
                 # filesizeint = int.from_bytes(filesize, "big")
                 # print('Filesize: ' + hex(filesizeint))
                 # print('End Offset: ' + hex(index + filesizeint))
