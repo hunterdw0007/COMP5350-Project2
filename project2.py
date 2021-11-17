@@ -33,10 +33,11 @@ def MPGRecovery():
             while True:
                 index = s.index('\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
-                # f.seek(index + 6, 0)
-                # filesize = f.read(4)
-                # filesizeint = struct.unpack('>I', filesize)
-                # print('Filesize: ' + str(hex(filesizeint[0])))
+                f.seek(index + 6, 0)
+                filesize = f.read(4)
+                # TODO Upgrade to Python 3
+                filesizeint = int.from_bytes(filesize, "big")
+                print('Filesize: ' + hex(filesizeint))
                 index += 3
         except ValueError:
             print("EOF")
