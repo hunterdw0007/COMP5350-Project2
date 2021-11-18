@@ -57,7 +57,7 @@ def MPGRecovery():
                 filesizeint = unsynchsafe(synchsafefilesize)
                 print('Filesize: ' + hex(filesizeint))
                 print('End Offset: ' + hex(index + filesizeint))
-                print('\n')
+                print('')
                 index += 3
                 count += 1
         except ValueError:
@@ -87,7 +87,8 @@ def MPGRecovery():
             count = 0
             while True:
                 index = s.index(b'\x52\x49\x46\x46', index)
-                print('Start Offset: ' + hex(index))
+                if(index + 8 == s.index(b'\x43\x44\x58\x41', index)):
+                    print('Start Offset: ' + hex(index))
                 index += 4
                 count += 1
         except ValueError:
