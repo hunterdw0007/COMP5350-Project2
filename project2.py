@@ -53,22 +53,25 @@ def MPGRecovery():
             count = 0
             while True:
                 #Finding match on File Signature
+                #Fix to only look at ones on 512 bytes
                 index = s.index(b'\x49\x44\x33', index)
+                if(index % 512 != 0):
+                    break
                 print('Start Offset: ' + hex(index))
 
-                #Finding the filesize bytes from bytes 6-9 of the file header
-                #These are stored as a synchsafe int so I convert to normal int
-                synchsafefilesize = int.from_bytes(s[index + 6:index + 10], "big")
-                filesizeint = unsynchsafe(synchsafefilesize)
-                print('Filesize: ' + hex(filesizeint))
-                print('End Offset: ' + hex(index + filesizeint))
+                # #Finding the filesize bytes from bytes 6-9 of the file header
+                # #These are stored as a synchsafe int so I convert to normal int
+                # synchsafefilesize = int.from_bytes(s[index + 6:index + 10], "big")
+                # filesizeint = unsynchsafe(synchsafefilesize)
+                # print('Filesize: ' + hex(filesizeint))
+                # print('End Offset: ' + hex(index + filesizeint))
 
-                #Writing the file to a new mp3 file
-                written_file = open("mp3-" + str(count) + ".mp3", "wb")
-                written_file.write(s[index:index+filesizeint])
-                written_file.close()
-                print('File Written')
-                print('')
+                # #Writing the file to a new mp3 file
+                # written_file = open("mp3-" + str(count) + ".mp3", "wb")
+                # written_file.write(s[index:index+filesizeint])
+                # written_file.close()
+                # print('File Written')
+                # print('')
 
                 #Moving the index to after the header so the index function will find the next file
                 #Question: Should I move to the end of the filesize or just after the signature?
@@ -80,67 +83,75 @@ def MPGRecovery():
         print('Found ' + str(count) + ' files')
         total += count
 
-        # # M4A
-        # print('\nM4A')
-        # try:
-        #     index = 0
-        #     count = 0
-        #     while True:
-        #         index = s.index(b'\x66\x74\x79\x70\x4D\x34\x41\x20', index)
-        #         print('Start Offset: ' + hex(index - 4))
-        #         index += 8
-        #         count += 1
-        # except ValueError:
-        #     print("EOF")
-        # print('Found ' + str(count) + ' files')
-        # total += count
+        # M4A
+        print('\nM4A')
+        try:
+            index = 0
+            count = 0
+            while True:
+                index = s.index(b'\x66\x74\x79\x70\x4D\x34\x41\x20', index)
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index - 4))
+                index += 8
+                count += 1
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
-        # # CD MPEG-1
-        # print('\nCD MPEG-1:')
-        # try:
-        #     index = 0
-        #     count = 0
-        #     while True:
-        #         index = s.index(b'\x52\x49\x46\x46', index)
-        #         if(index + 8 == s.index(b'\x43\x44\x58\x41', index)):
-        #             print('Start Offset: ' + hex(index))
-        #         index += 4
-        #         count += 1
-        # except ValueError:
-        #     print("EOF")
-        # print('Found ' + str(count) + ' files')
-        # total += count
+        # CD MPEG-1
+        print('\nCD MPEG-1:')
+        try:
+            index = 0
+            count = 0
+            while True:
+                index = s.index(b'\x52\x49\x46\x46', index)
+                if(index % 512 != 0):
+                    break
+                # if(index + 8 == s.index(b'\x43\x44\x58\x41', index)):
+                print('Start Offset: ' + hex(index))
+                index += 4
+                count += 1
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
-        # # DVD MPEG-2
-        # print('\nDVD MPEG-2:')
-        # try:
-        #     index = 0
-        #     count = 0
-        #     while True:
-        #         index = s.index(b'\x00\x00\x01\xBA ', index)
-        #         print('Start Offset: ' + hex(index))
-        #         index = s.index(b'\x00\x00\x01\xB9', index + 4)
-        #         print('End Offset: ' + hex(index))
-        #         index += 4
-        #         count += 1
-        # except ValueError:
-        #     print("EOF")
-        # print('Found ' + str(count) + ' files')
-        # total += count
+        # DVD MPEG-2
+        print('\nDVD MPEG-2:')
+        try:
+            index = 0
+            count = 0
+            while True:
+                index = s.index(b'\x00\x00\x01\xBA', index)
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index))
+                # index = s.index(b'\x00\x00\x01\xB9', index + 4)
+                # print('End Offset: ' + hex(index))
+                index += 4
+                count += 1
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
 
-        # # MP4 MPEG-4
-        # print('\nMP4 MPEG-4:')
-        # try:
-        #     index = 0
-        #     count = 0
-        #     while True:
-        #         index = s.index(b'\x66\x74\x79\x70\x6D\x70\x34\x32', index)
-        #         print('Start Offset: ' + hex(index - 4))
-        #         index += 8
-        #         count += 1
-        # except ValueError:
-        #     print("EOF")
-        # print('Found ' + str(count) + ' files')
+        # MP4 MPEG-4
+        print('\nMP4 MPEG-4:')
+        try:
+            index = 0
+            count = 0
+            while True:
+                index = s.index(b'\x66\x74\x79\x70\x6D\x70\x34\x32', index)
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index - 4))
+                index += 8
+                count += 1
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' files')
         total += count
         print('\nTotal MPG types found: ' + str(total))
     return 0
@@ -189,6 +200,31 @@ def DOCXRecovery():
 
 #AVI
 def AVIRecovery():
+    print('\AVI File locations:')
+    with open(filename, 'rb') as f:
+        total = 0
+
+        s = f.read()
+
+        print('\nAVI:')
+        try:
+            index = 0
+            count = 0
+            while True:
+                index = s.index(b'\x52\x49\x46\x46', index)
+                if(index + 8 != s.index(b'\x41\x56\x49\x20\x4C\x49\x53\x54', index)):
+                    break
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index))
+                index += 4
+                count += 1
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' files')
+        total += count
+        print('\nTotal AVI types found: ' + str(count))
+
     return 0
 
 #PNG
