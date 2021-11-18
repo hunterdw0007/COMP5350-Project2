@@ -57,6 +57,10 @@ def MPGRecovery():
                 filesizeint = unsynchsafe(synchsafefilesize)
                 print('Filesize: ' + hex(filesizeint))
                 print('End Offset: ' + hex(index + filesizeint))
+                written_file = open("mp3-" + str(count) + ".mp3", "wb")
+                written_file.write(s[index:index+filesizeint])
+                written_file.close()
+                print('File Written')
                 print('')
                 index += 3
                 count += 1
