@@ -51,17 +51,25 @@ def MPGRecovery():
             index = 0
             count = 0
             while True:
+                #Finding match on File Signature
                 index = s.index(b'\x49\x44\x33', index)
                 print('Start Offset: ' + hex(index))
-                synchsafefilesize = int.from_bytes(s[index + 6:index + 11], "big")
+
+                #Finding the filesize bytes from bytes 6-9 of the file header
+                #These are stored as a synchsafe int so I convert to normal int
+                synchsafefilesize = int.from_bytes(s[index + 6:index + 10], "big")
                 filesizeint = unsynchsafe(synchsafefilesize)
                 print('Filesize: ' + hex(filesizeint))
                 print('End Offset: ' + hex(index + filesizeint))
+
+                #Writing the file to a new mp3 file
                 written_file = open("mp3-" + str(count) + ".mp3", "wb")
                 written_file.write(s[index:index+filesizeint])
                 written_file.close()
                 print('File Written')
                 print('')
+                
+                #Moving the index to after the header so the index function will find the next file
                 index += 3
                 count += 1
         except ValueError:
