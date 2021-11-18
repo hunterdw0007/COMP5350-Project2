@@ -38,6 +38,7 @@ def unsynchsafe(num):
     return out
 
 #MPG
+#Question: Do we need to look at EVERY kind of MPG (audio and video) or just MP3? I am only finding MP3
 def MPGRecovery():
     print('\nMPG File locations:')
     with open(filename, 'rb') as f:
@@ -68,8 +69,10 @@ def MPGRecovery():
                 written_file.close()
                 print('File Written')
                 print('')
-                
+
                 #Moving the index to after the header so the index function will find the next file
+                #Question: Should I move to the end of the filesize or just after the signature?
+                #One way finds 9 files, this way finds 1 file
                 index += 3
                 count += 1
         except ValueError:
@@ -153,6 +156,14 @@ def PDFRecovery():
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
                 print('Start Offset: ' + hex(index))
+                #Question: How to find the end of the PDF File if there are multiple footers in the file?
+                #Writing the file to a new pdf file
+                # written_file = open("pdf-" + str(count) + ".pdf", "wb")
+                # written_file.write(s[index:index+filesizeint])
+                # written_file.close()
+                # print('File Written')
+                print('')
+
                 index += 4
                 count += 1
         except ValueError:
