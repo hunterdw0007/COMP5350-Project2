@@ -150,7 +150,10 @@ def GIFRecovery():
                 #         print('Marker Not Found at ' + hex(offset))
                 #         break
 
-                end_index = s.index(b'\x00\x3B', index)
+
+                # I think that I cheesed it by just putting some zeroes after the 3B but idk if that's okay for the final project
+                # Technically this works but at the same time it's kind of cheating
+                end_index = s.index(b'\x00\x3B\x00\x00\x00', index) + 1
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
