@@ -130,7 +130,7 @@ def PDFRecovery():
             hash = hashlib.sha256(s[start_location:eof_location + 1]).hexdigest()
             print('SHA-256: ' + hash)
             print()
-        print('Found ' + str(count) + ' files')
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
 #BMP
@@ -210,7 +210,7 @@ def GIFRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' files')
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
 #JPG
@@ -258,21 +258,57 @@ def AVIRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' files')
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
 #PNG
 def PNGRecovery():
+    print('\nPNG Files:\n')
+    with open(filename, 'rb') as f:
+
+        s = f.read()
+        try:
+            index = 0
+            count = 0
+            while True:
+                # Locating the PNG header then checking whether it is at the start of a sector
+                index = s.index(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A', index)
+                # For some reason there is a file that isn't on a multiple of 512 but it does work
+                # We will probably have to come back to this
+                # if(index % 512 != 0):
+                #     break
+                print('Start Offset: ' + hex(index))
+
+                # Finding File Size
+                # PNG has a footer so just look for location of footer and add the length of the footer - 1
+                end_index = s.index(b'\x49\x45\x4E\x44\xAE\x42\x60\x82', index) + 7
+                print('End Offset: ' + hex(end_index))
+
+                # Writing the file
+                written_file = open("png-" + str(count) + ".png", "wb")
+                written_file.write(s[index:end_index + 1])
+                written_file.close()
+                print('File Written')
+
+                # Hashing the bytes which make up the file
+                hash = hashlib.sha256(s[index:end_index +  1]).hexdigest()
+                print('SHA-256: ' + hash)
+                index += 4
+                count += 1
+                print()
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
 #Runner code
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 # MPGRecovery()
-PDFRecovery()
+PDFRecovery() # Done
 BMPRecovery()
-GIFRecovery()
+GIFRecovery() # Done - sort of
 JPGRecovery()
 DOCXRecovery()
-AVIRecovery()
-PNGRecovery()
+AVIRecovery() # Done
+PNGRecovery() # Done - strange behavior
