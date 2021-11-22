@@ -17,7 +17,7 @@
 # 4. Collect the specified bytes and write those to a file
 # 5. Find the SHA-256 of the bytes
 
-#imports
+# imports
 import sys
 import os
 import hashlib
@@ -26,12 +26,14 @@ import hashlib
 filename = sys.argv[1]
 #filename = 'Project2.dd'
 
-#finding the size of the disk image for later use
+# finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
 
 # MPG
 # TODO make this one work
 # I cannot figure this one out
+
+
 def MPGRecovery():
     print('\nMPG File locations:')
     with open(filename, 'rb') as f:
@@ -58,6 +60,8 @@ def MPGRecovery():
     return 0
 
 # PDF
+
+
 def PDFRecovery():
     print('\nPDF Files:\n')
 
@@ -86,8 +90,9 @@ def PDFRecovery():
             if(start_location == start_locations[-1]):
                 stop_point = image_size
             else:
-                stop_point = start_locations[start_locations.index(start_location) + 1]
-            
+                stop_point = start_locations[start_locations.index(
+                    start_location) + 1]
+
             # changed signifies that the value of eof_location has changed within the loop
             # it is true by default because there must be at least 1 EOF marker
             changed = True
@@ -95,22 +100,26 @@ def PDFRecovery():
                 curr_eof = eof_location
                 try:
                     if(s.index(b'\x0A\x25\x25\x45\x4F\x46', eof_location) < stop_point):
-                        eof_location = s.index(b'\x0A\x25\x25\x45\x4F\x46', eof_location) + 5
+                        eof_location = s.index(
+                            b'\x0A\x25\x25\x45\x4F\x46', eof_location) + 5
                 except ValueError:
                     pass
                 try:
                     if(s.index(b'\x0A\x25\x25\x45\x4F\x46\x0A', eof_location) < stop_point):
-                        eof_location = s.index(b'\x0A\x25\x25\x45\x4F\x46\x0A', eof_location) + 6
+                        eof_location = s.index(
+                            b'\x0A\x25\x25\x45\x4F\x46\x0A', eof_location) + 6
                 except ValueError:
                     pass
                 try:
                     if(s.index(b'\x0D\x0A\x25\x25\x45\x4F\x46\x0D\x0A', eof_location) < stop_point):
-                        eof_location = s.index(b'\x0D\x0A\x25\x25\x45\x4F\x46\x0D\x0A', eof_location) + 8
+                        eof_location = s.index(
+                            b'\x0D\x0A\x25\x25\x45\x4F\x46\x0D\x0A', eof_location) + 8
                 except ValueError:
                     pass
                 try:
                     if(s.index(b'\x0D\x25\x25\x45\x4F\x46\x0D', eof_location) < stop_point):
-                        eof_location = s.index(b'\x0D\x25\x25\x45\x4F\x46\x0D', eof_location) + 6
+                        eof_location = s.index(
+                            b'\x0D\x25\x25\x45\x4F\x46\x0D', eof_location) + 6
                 except ValueError:
                     pass
 
@@ -121,24 +130,30 @@ def PDFRecovery():
             print('End Offset: ' + hex(eof_location))
 
             # Writing the file
-            written_file = open("pdf-" + str(start_locations.index(start_location)) + ".pdf", "wb")
+            written_file = open(
+                "pdf-" + str(start_locations.index(start_location)) + ".pdf", "wb")
             written_file.write(s[start_location:eof_location + 1])
             written_file.close()
             print('File Written')
 
             # Hashing the bytes which make up the file
-            hash = hashlib.sha256(s[start_location:eof_location + 1]).hexdigest()
+            hash = hashlib.sha256(
+                s[start_location:eof_location + 1]).hexdigest()
             print('SHA-256: ' + hash)
             print()
         print('Found ' + str(count) + ' file(s)')
     return 0
 
-#BMP
+# BMP
+
+
 def BMPRecovery():
     return 0
 
-#GIF
+# GIF
 # GIFs are weird. These are animated gifs and so we need to find every frame of the animation all the way to the end of the file. We have to do this iteratively
+
+
 def GIFRecovery():
     print('\nGIF Files:\n')
     with open(filename, 'rb') as f:
@@ -161,7 +176,7 @@ def GIFRecovery():
                 # if(s[index + 0x0A] >= 0b10000000):
                 #     offset = (1 <<((s[index + 0x0A] & 0x09) + 1)) * 3
                 # offset = offset + 13
-                
+
                 # # This interates through the gif looking for the 0x3B that signifies the end of the file
                 # # The reason it has to be done this way is because a GIF works in blocks of data so the 0x3B has to be at the beginning of a block
                 # # Blocks are calculated based on the locations of other blocks and sub-blocks
@@ -190,7 +205,6 @@ def GIFRecovery():
                 #         print('Marker Not Found at ' + hex(offset))
                 #         break
 
-
                 # I think that I cheesed it by just putting some zeroes after the 3B but idk if that's okay for the final project
                 # Technically this works but at the same time it's kind of cheating
                 end_index = s.index(b'\x00\x3B\x00\x00\x00', index) + 1
@@ -213,15 +227,56 @@ def GIFRecovery():
         print('Found ' + str(count) + ' file(s)')
     return 0
 
-#JPG
+# JPG
+
+
 def JPGRecovery():
     return 0
 
-#DOCX
+# DOCX
+
+
 def DOCXRecovery():
+    print('\nDOCX Files:\n')
+    with open(filename, 'rb') as f:
+
+        s = f.read()
+        try:
+            index = 0
+            count = 0
+            while True:
+                # Locating the DOCX header then checking whether it is at the start of a sector
+                index = s.index(b'\x50\x4B\x03\x04\x14\x00\x06\x00', index)
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index))
+
+                # Finding File Size
+                # DOCX has a footer which is followed by 18 bytes then the file is ended
+                end_index = s.index(
+                    b'\x50\x4B\x05\x06', index) + 21
+                print('End Offset: ' + hex(end_index))
+
+                # Writing the file
+                written_file = open("docx-" + str(count) + ".docx", "wb")
+                written_file.write(s[index:end_index + 1])
+                written_file.close()
+                print('File Written')
+
+                # Hashing the bytes which make up the file
+                hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
+                print('SHA-256: ' + hash)
+                index += 4
+                count += 1
+                print()
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
-#AVI
+# AVI
+
+
 def AVIRecovery():
     print('\nAVI Files:\n')
     with open(filename, 'rb') as f:
@@ -251,7 +306,8 @@ def AVIRecovery():
                 print('File Written')
 
                 # Hashing the bytes which make up the file
-                hash = hashlib.sha256(s[index:index + avi_size + 1]).hexdigest()
+                hash = hashlib.sha256(
+                    s[index:index + avi_size + 1]).hexdigest()
                 print('SHA-256: ' + hash)
                 index += 4
                 count += 1
@@ -261,7 +317,9 @@ def AVIRecovery():
         print('Found ' + str(count) + ' file(s)')
     return 0
 
-#PNG
+# PNG
+
+
 def PNGRecovery():
     print('\nPNG Files:\n')
     with open(filename, 'rb') as f:
@@ -281,7 +339,8 @@ def PNGRecovery():
 
                 # Finding File Size
                 # PNG has a footer so just look for location of footer and add the length of the footer - 1
-                end_index = s.index(b'\x49\x45\x4E\x44\xAE\x42\x60\x82', index) + 7
+                end_index = s.index(
+                    b'\x49\x45\x4E\x44\xAE\x42\x60\x82', index) + 7
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
@@ -291,7 +350,7 @@ def PNGRecovery():
                 print('File Written')
 
                 # Hashing the bytes which make up the file
-                hash = hashlib.sha256(s[index:end_index +  1]).hexdigest()
+                hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
                 print('SHA-256: ' + hash)
                 index += 4
                 count += 1
@@ -301,14 +360,15 @@ def PNGRecovery():
         print('Found ' + str(count) + ' file(s)')
     return 0
 
-#Runner code
+# Runner code
+
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 # MPGRecovery()
-PDFRecovery() # Done
+PDFRecovery()  # Done
 BMPRecovery()
-GIFRecovery() # Done - sort of
+GIFRecovery()  # Done - sort of
 JPGRecovery()
 DOCXRecovery()
-AVIRecovery() # Done
-PNGRecovery() # Done - strange behavior
+AVIRecovery()  # Done
+PNGRecovery()  # Done - strange behavior
