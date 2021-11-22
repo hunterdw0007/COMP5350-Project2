@@ -365,10 +365,10 @@ def PNGRecovery():
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 # MPGRecovery()
-PDFRecovery()  # Done
+PDFRecovery()   # Done
 BMPRecovery()
-GIFRecovery()  # Done - sort of
+GIFRecovery()   # Done - sort of
 JPGRecovery()
-DOCXRecovery()
-AVIRecovery()  # Done
-PNGRecovery()  # Done - strange behavior
+DOCXRecovery()  # Done
+AVIRecovery()   # Done
+PNGRecovery()   # Done - strange behavior
