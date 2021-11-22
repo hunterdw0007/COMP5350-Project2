@@ -26,19 +26,8 @@ filename = sys.argv[1]
 #finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
 
-#Helper Code
-# https://stuffivelearned.org/doku.php?id=misc:synchsafe
-def unsynchsafe(num):
-    out = 0
-    mask = 0x7f000000
-    for i in range(4):
-        out >>= 1
-        out |= num & mask
-        mask >>= 8
-    return out
-
-#MPG
-#Question: Do we need to look at EVERY kind of MPG (audio and video) or just MP3? I am only finding MP3
+# MPG
+# I cannot figure this one out
 def MPGRecovery():
     print('\nMPG File locations:')
     with open(filename, 'rb') as f:
@@ -46,70 +35,13 @@ def MPGRecovery():
 
         s = f.read()
 
-        # ID3 MP3
-        print('\nID3 MP3:')
         try:
             index = 0
             count = 0
             while True:
-                #Finding match on File Signature
-                #Fix to only look at ones on 512 bytes
-                index = s.index(b'\x49\x44\x33', index)
+                index = s.index(b'', index)
                 if(index % 512 != 0):
                     break
-                print('Start Offset: ' + hex(index))
-
-                # #Finding the filesize bytes from bytes 6-9 of the file header
-                # #These are stored as a synchsafe int so I convert to normal int
-                # synchsafefilesize = int.from_bytes(s[index + 6:index + 10], "big")
-                # filesizeint = unsynchsafe(synchsafefilesize)
-                # print('Filesize: ' + hex(filesizeint))
-                # print('End Offset: ' + hex(index + filesizeint))
-
-                # #Writing the file to a new mp3 file
-                # written_file = open("mp3-" + str(count) + ".mp3", "wb")
-                # written_file.write(s[index:index+filesizeint])
-                # written_file.close()
-                # print('File Written')
-                # print('')
-
-                #Moving the index to after the header so the index function will find the next file
-                #Question: Should I move to the end of the filesize or just after the signature?
-                #One way finds 10 files, other way finds 1 file
-                index += 3
-                count += 1
-        except ValueError:
-            print("EOF")
-        print('Found ' + str(count) + ' files')
-        total += count
-
-        # M4A
-        print('\nM4A')
-        try:
-            index = 0
-            count = 0
-            while True:
-                index = s.index(b'\x66\x74\x79\x70\x4D\x34\x41\x20', index)
-                if(index % 512 != 0):
-                    break
-                print('Start Offset: ' + hex(index - 4))
-                index += 8
-                count += 1
-        except ValueError:
-            print("EOF")
-        print('Found ' + str(count) + ' files')
-        total += count
-
-        # CD MPEG-1
-        print('\nCD MPEG-1:')
-        try:
-            index = 0
-            count = 0
-            while True:
-                index = s.index(b'\x52\x49\x46\x46', index)
-                if(index % 512 != 0):
-                    break
-                # if(index + 8 == s.index(b'\x43\x44\x58\x41', index)):
                 print('Start Offset: ' + hex(index))
                 index += 4
                 count += 1
@@ -118,57 +50,29 @@ def MPGRecovery():
         print('Found ' + str(count) + ' files')
         total += count
 
-        # DVD MPEG-2
-        print('\nDVD MPEG-2:')
-        try:
-            index = 0
-            count = 0
-            while True:
-                index = s.index(b'\x00\x00\x01\xBA', index)
-                if(index % 512 != 0):
-                    break
-                print('Start Offset: ' + hex(index))
-                # index = s.index(b'\x00\x00\x01\xB9', index + 4)
-                # print('End Offset: ' + hex(index))
-                index += 4
-                count += 1
-        except ValueError:
-            print("EOF")
-        print('Found ' + str(count) + ' files')
-        total += count
-
-        # MP4 MPEG-4
-        print('\nMP4 MPEG-4:')
-        try:
-            index = 0
-            count = 0
-            while True:
-                index = s.index(b'\x66\x74\x79\x70\x6D\x70\x34\x32', index)
-                if(index % 512 != 0):
-                    break
-                print('Start Offset: ' + hex(index - 4))
-                index += 8
-                count += 1
-        except ValueError:
-            print("EOF")
-        print('Found ' + str(count) + ' files')
-        total += count
         print('\nTotal MPG types found: ' + str(total))
     return 0
 
-#PDF
+# PDF
 def PDFRecovery():
     print('\nPDF File Locations:')
+
+    # This will hold the start locations of the two PDFs so that we can search for the last footer
+    start_locations = []
+
     with open(filename, 'rb') as f:
         try:
             index = 0
             count = 0
             s = f.read()
+
+            # This loop finds the start index of the files
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
+                start_locations.append(index)
                 print('Start Offset: ' + hex(index))
-                #Question: How to find the end of the PDF File if there are multiple footers in the file?
-                #Writing the file to a new pdf file
+                # Question: How to find the end of the PDF File if there are multiple footers in the file?
+                # Writing the file to a new pdf file
                 # written_file = open("pdf-" + str(count) + ".pdf", "wb")
                 # written_file.write(s[index:index+filesizeint])
                 # written_file.close()
@@ -200,7 +104,7 @@ def DOCXRecovery():
 
 #AVI
 def AVIRecovery():
-    print('\AVI File locations:')
+    print('\nAVI File locations:')
     with open(filename, 'rb') as f:
         total = 0
 
@@ -217,6 +121,12 @@ def AVIRecovery():
                 if(index % 512 != 0):
                     break
                 print('Start Offset: ' + hex(index))
+                avi_size = int.from_bytes(s[index + 4:index + 8], 'little', signed=False)
+                print(hex(avi_size))
+                written_file = open("avi-" + str(count) + ".avi", "wb")
+                written_file.write(s[index:index + avi_size + 1])
+                written_file.close()
+                print('File Written')
                 index += 4
                 count += 1
         except ValueError:
