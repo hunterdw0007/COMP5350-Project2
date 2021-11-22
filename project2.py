@@ -85,6 +85,9 @@ def PDFRecovery():
             # This loop finds the start index of the files
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
+                if (index % 512 != 0):
+                    index += 4
+                    continue
                 start_locations.append(index)
                 index += 4
                 count += 1
@@ -169,7 +172,7 @@ def BMPRecovery():
                 # Locating the BMP header then checking whether it is at the start of a sector
                 index = s.index(b'\x42\x4D', index)
                 # I changed the number here from 0x100 to 0x1000 and it's still finding one extra file
-                if(index % 0x1000 != 0):
+                if(index % 0x800 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
@@ -189,7 +192,9 @@ def BMPRecovery():
                 hash = hashlib.sha256(
                     s[index:index + bmp_size + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 2
+
+                # Setting the index to after the file that we just found ensures that there aren't files within files
+                index = index + bmp_size
                 count += 1
                 print()
         except ValueError:
@@ -268,7 +273,9 @@ def GIFRecovery():
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 6
+
+                # Setting index to end_index ensures that we don't look for files within the file we just found
+                index = end_index
                 count += 1
                 print()
         except ValueError:
@@ -290,8 +297,8 @@ def JPGRecovery():
             while True:
                 # Locating the JPG header then checking whether it is at the start of a sector
                 index = s.index(b'\xFF\xD8', index)
-                # I changed the number here from 0x100 to 0x1000 and now it is only finding the valid JPG files
-                if(index % 0x1000 != 0):
+                # I changed the number here from 0x200 to 0x800 and now it is only finding the valid JPG files
+                if(index % 0x800 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
@@ -314,7 +321,9 @@ def JPGRecovery():
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 2
+
+                # Setting the index to the end_index after the file has been recovered makes sure that we don't find files within files
+                index = end_index
                 count += 1
                 print()
         except ValueError:
@@ -359,7 +368,9 @@ def DOCXRecovery():
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 8
+
+                # Setting the index to end_index ensures we don't look for files within the one we just found
+                index = end_index
                 count += 1
                 print()
         except ValueError:
@@ -404,7 +415,9 @@ def AVIRecovery():
                 hash = hashlib.sha256(
                     s[index:index + avi_size + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 4
+
+                # Setting the index to after the end of the file ensures we don't look for files within files
+                index = index + avi_size
                 count += 1
                 print()
         except ValueError:
@@ -426,18 +439,15 @@ def PNGRecovery():
             while True:
                 # Locating the PNG header then checking whether it is at the start of a sector
                 index = s.index(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A', index)
-                # For some reason there is a file that isn't on a multiple of 512 but it does work
-                # We will probably have to come back to this
-                # if(index % 512 != 0):
-                #     index += 8
-                #     break
-                print('Start Offset: ' + hex(index))
+                if(index % 512 != 0):
+                    index += 8
+                    continue
 
                 # Finding File Size
                 # PNG has a footer so just look for location of footer and add the length of the footer - 1
                 end_index = s.index(
                     b'\x49\x45\x4E\x44\xAE\x42\x60\x82', index) + 7
-                
+
                 # Printing the information
                 print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(end_index))
@@ -451,7 +461,9 @@ def PNGRecovery():
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
                 print('SHA-256: ' + hash)
-                index += 8
+
+                # Setting the index to end_index ensures we don't look for files within files
+                index = end_index
                 count += 1
                 print()
         except ValueError:
@@ -466,12 +478,12 @@ print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 
 #total_found += MPGRecovery()
 total_found += PDFRecovery()   # Done
-total_found += BMPRecovery()   # Done - finding extra files
+total_found += BMPRecovery()   # Done - finding extra file
 total_found += GIFRecovery()   # Done - sort of
 total_found += JPGRecovery()   # Done
 total_found += DOCXRecovery()  # Done
 total_found += AVIRecovery()   # Done
-total_found += PNGRecovery()   # Done - strange behavior
+total_found += PNGRecovery()   # Done
 
 print('\nTotal number of files found: ' + str(total_found))
 
