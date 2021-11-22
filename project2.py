@@ -59,7 +59,7 @@ def MPGRecovery():
 
 # PDF
 def PDFRecovery():
-    print('\nPDF File Locations:')
+    print('\nPDF Files:\n')
 
     # This will hold the start locations of the two PDFs so that we can search for the last footer
     start_locations = []
@@ -74,20 +74,63 @@ def PDFRecovery():
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
                 start_locations.append(index)
-                print('Start Offset: ' + hex(index))
-                # Question: How to find the end of the PDF File if there are multiple footers in the file?
-                # Writing the file to a new pdf file
-                # written_file = open("pdf-" + str(count) + ".pdf", "wb")
-                # written_file.write(s[index:index+filesizeint])
-                # written_file.close()
-                # print('File Written')
-                print('')
-
                 index += 4
                 count += 1
         except ValueError:
-            print("EOF")
-        print('\nTotal PDF types found: ' + str(count))
+            pass
+
+        # This loop will go through each of the start locations and find the EOF before either the next PDF or the EOF of the partition
+        for start_location in start_locations:
+            eof_location = start_location
+            stop_point = 0
+            if(start_location == start_locations[-1]):
+                stop_point = image_size
+            else:
+                stop_point = start_locations[start_locations.index(start_location) + 1]
+            
+            # changed signifies that the value of eof_location has changed within the loop
+            # it is true by default because there must be at least 1 EOF marker
+            changed = True
+            while changed:
+                curr_eof = eof_location
+                try:
+                    if(s.index(b'\x0A\x25\x25\x45\x4F\x46', eof_location) < stop_point):
+                        eof_location = s.index(b'\x0A\x25\x25\x45\x4F\x46', eof_location) + 5
+                except ValueError:
+                    pass
+                try:
+                    if(s.index(b'\x0A\x25\x25\x45\x4F\x46\x0A', eof_location) < stop_point):
+                        eof_location = s.index(b'\x0A\x25\x25\x45\x4F\x46\x0A', eof_location) + 6
+                except ValueError:
+                    pass
+                try:
+                    if(s.index(b'\x0D\x0A\x25\x25\x45\x4F\x46\x0D\x0A', eof_location) < stop_point):
+                        eof_location = s.index(b'\x0D\x0A\x25\x25\x45\x4F\x46\x0D\x0A', eof_location) + 8
+                except ValueError:
+                    pass
+                try:
+                    if(s.index(b'\x0D\x25\x25\x45\x4F\x46\x0D', eof_location) < stop_point):
+                        eof_location = s.index(b'\x0D\x25\x25\x45\x4F\x46\x0D', eof_location) + 6
+                except ValueError:
+                    pass
+
+                # Value of eof_location hasn't changed during the loop so we found the final one
+                if(curr_eof == eof_location):
+                    changed = False
+            print('Start Offset: ' + hex(start_location))
+            print('End Offset: ' + hex(eof_location))
+
+            # Writing the file
+            written_file = open("pdf-" + str(start_locations.index(start_location)) + ".pdf", "wb")
+            written_file.write(s[start_location:eof_location + 1])
+            written_file.close()
+            print('File Written')
+
+            # Hashing the bytes which make up the file
+            hash = hashlib.sha256(s[start_location:eof_location + 1]).hexdigest()
+            print('SHA-256: ' + hash)
+            print()
+        print('Found ' + str(count) + ' files')
     return 0
 
 #BMP
@@ -96,9 +139,6 @@ def BMPRecovery():
 
 #GIF
 # GIFs are weird. These are animated gifs and so we need to find every frame of the animation all the way to the end of the file. We have to do this iteratively
-# Steps:
-# 1. Find the file starting locations like normal
-# 2. If the GCT is present then we have to & it with 
 def GIFRecovery():
     print('\nGIF Files:\n')
     with open(filename, 'rb') as f:
@@ -227,7 +267,7 @@ def PNGRecovery():
 
 #Runner code
 
-print('File size is: ' + str(hex(image_size)) + ' bytes')
+print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 # MPGRecovery()
 PDFRecovery()
 BMPRecovery()
