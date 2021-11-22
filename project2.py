@@ -121,8 +121,8 @@ def AVIRecovery():
                 if(index % 512 != 0):
                     break
                 print('Start Offset: ' + hex(index))
-                avi_size = int.from_bytes(s[index + 4:index + 8], 'little', signed=False)
-                print(hex(avi_size))
+                avi_size = int.from_bytes(s[index + 4:index + 8], 'little')
+                print(avi_size)
                 written_file = open("avi-" + str(count) + ".avi", "wb")
                 written_file.write(s[index:index + avi_size + 1])
                 written_file.close()
