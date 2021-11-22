@@ -18,6 +18,8 @@
 # 3. Use the file size/footer location to calculate the end offset
 # 4. Collect the specified bytes and write those to a file
 # 5. Find the SHA-256 of the bytes
+# 6. Set index to the end of the current file and continue looking. 
+#       If it reaches the EOF then an exception is called and we end the loop
 
 # imports
 import sys
@@ -43,18 +45,16 @@ total_found = 0
 
 
 def MPGRecovery():
-    print('\nMPG File locations:')
+    print('\nMPG Files:')
     with open(filename, 'rb') as f:
-        total = 0
 
         s = f.read()
-
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
             while True:
                 index = s.index(b'', index)
-                if(index % 512 != 0):
+                if(index % 0x800 != 0):
                     break
                 print('Start Offset: ' + hex(index))
                 index += 4
@@ -62,9 +62,7 @@ def MPGRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' files')
-        total += count
 
-        print('\nTotal MPG types found: ' + str(total))
     return 0
 
 # PDF
@@ -77,11 +75,11 @@ def PDFRecovery():
     start_locations = []
 
     with open(filename, 'rb') as f:
+        
+        index = 0
+        count = 0
+        s = f.read()
         try:
-            index = 0
-            count = 0
-            s = f.read()
-
             # This loop finds the start index of the files
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
@@ -165,9 +163,10 @@ def BMPRecovery():
     with open(filename, 'rb') as f:
 
         s = f.read()
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
+            
             while True:
                 # Locating the BMP header then checking whether it is at the start of a sector
                 index = s.index(b'\x42\x4D', index)
@@ -290,9 +289,10 @@ def JPGRecovery():
     with open(filename, 'rb') as f:
 
         s = f.read()
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
+            
             while True:
                 # Locating the JPG header then checking whether it is at the start of a sector
                 index = s.index(b'\xFF\xD8', index)
@@ -337,9 +337,10 @@ def DOCXRecovery():
     with open(filename, 'rb') as f:
 
         s = f.read()
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
+            
             while True:
                 # Locating the DOCX header then checking whether it is at the start of a sector
                 index = s.index(b'\x50\x4B\x03\x04\x14\x00\x06\x00', index)
@@ -384,9 +385,10 @@ def AVIRecovery():
     with open(filename, 'rb') as f:
 
         s = f.read()
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
+            
             while True:
                 # Locating the RIFF header then checking whether it is an AVI and at the start of a sector
                 index = s.index(b'\x52\x49\x46\x46', index)
@@ -431,9 +433,10 @@ def PNGRecovery():
     with open(filename, 'rb') as f:
 
         s = f.read()
+        index = 0
+        count = 0
         try:
-            index = 0
-            count = 0
+            
             while True:
                 # Locating the PNG header then checking whether it is at the start of a sector
                 index = s.index(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A', index)
