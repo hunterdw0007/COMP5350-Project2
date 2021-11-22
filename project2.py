@@ -22,13 +22,19 @@
 import sys
 import os
 import hashlib
+import time
+
+# For runtime calculation
+begin = time.time()
 
 # this is where the name of the disk image will come in
 filename = sys.argv[1]
-#filename = 'Project2.dd'
 
 # finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
+
+# Variable for total number of files found
+total_found = 0
 
 # MPG
 # TODO make this one work
@@ -127,6 +133,8 @@ def PDFRecovery():
                 # Value of eof_location hasn't changed during the loop so we found the final one
                 if(curr_eof == eof_location):
                     changed = False
+
+            # Printing the Information
             print('Start Offset: ' + hex(start_location))
             print('End Offset: ' + hex(eof_location))
 
@@ -143,7 +151,7 @@ def PDFRecovery():
             print('SHA-256: ' + hash)
             print()
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # BMP
 
@@ -186,7 +194,7 @@ def BMPRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # GIF
 
@@ -205,7 +213,6 @@ def GIFRecovery():
                 if(index % 512 != 0):
                     index += 6
                     continue
-                print('Start Offset: ' + hex(index))
 
                 # # Finding File Size
                 # offset = 0
@@ -246,6 +253,9 @@ def GIFRecovery():
                 # I think that I cheesed it by just putting some zeroes after the 3B but idk if that's okay for the final project
                 # Technically this works but at the same time it's kind of cheating
                 end_index = s.index(b'\x00\x3B\x00\x00\x00', index) + 1
+
+                # Printing the information
+                print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
@@ -263,7 +273,7 @@ def GIFRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # JPG
 
@@ -289,6 +299,9 @@ def JPGRecovery():
                 # JPG has a footer then I add some zeroes to make sure it is actually the end of the file
                 end_index = s.index(
                     b'\xFF\xD9\x00\x00\x00\x00', index) + 1
+
+                # Printing the information
+                print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
@@ -306,7 +319,7 @@ def JPGRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # DOCX
 
@@ -331,6 +344,9 @@ def DOCXRecovery():
                 # DOCX has a footer which is followed by 18 bytes then the file is ended
                 end_index = s.index(
                     b'\x50\x4B\x05\x06', index) + 21
+
+                # Printing the information
+                print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
@@ -348,7 +364,7 @@ def DOCXRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # AVI
 
@@ -393,7 +409,7 @@ def AVIRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # PNG
 
@@ -420,6 +436,9 @@ def PNGRecovery():
                 # PNG has a footer so just look for location of footer and add the length of the footer - 1
                 end_index = s.index(
                     b'\x49\x45\x4E\x44\xAE\x42\x60\x82', index) + 7
+                
+                # Printing the information
+                print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(end_index))
 
                 # Writing the file
@@ -437,17 +456,24 @@ def PNGRecovery():
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + ' file(s)')
-    return 0
+    return count
 
 # Runner code
 
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
-# MPGRecovery()
-PDFRecovery()   # Done
-BMPRecovery()   # Done - finding extra files
-GIFRecovery()   # Done - sort of
-JPGRecovery()   # Done - finding extra files
-DOCXRecovery()  # Done
-AVIRecovery()   # Done
-PNGRecovery()   # Done - strange behavior
+
+#total_found += MPGRecovery()
+total_found += PDFRecovery()   # Done
+total_found += BMPRecovery()   # Done - finding extra files
+total_found += GIFRecovery()   # Done - sort of
+total_found += JPGRecovery()   # Done
+total_found += DOCXRecovery()  # Done
+total_found += AVIRecovery()   # Done
+total_found += PNGRecovery()   # Done - strange behavior
+
+print('\nTotal number of files found: ' + str(total_found))
+
+end = time.time()
+
+print(f'\nTime to find all {total_found} files was {end-begin} seconds')
