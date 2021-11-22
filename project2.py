@@ -9,6 +9,7 @@
 # https://www.quickprogrammingtips.com/python/how-to-calculate-sha256-hash-of-a-file-in-python.html
 # https://www.ntfs.com/gif-signature-format.htm
 # http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html
+# https://www.geeksforgeeks.org/python-continue-statement/
 
 # Recovery Steps
 # 1. Scan disk image to find index of file header which is the start offset
@@ -158,7 +159,8 @@ def BMPRecovery():
             while True:
                 # Locating the BMP header then checking whether it is at the start of a sector
                 index = s.index(b'\x42\x4D', index)
-                if(index % 512 != 0):
+                # I changed the number here from 0x100 to 0x1000 and it's still finding one extra file
+                if(index % 0x1000 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
@@ -187,7 +189,6 @@ def BMPRecovery():
     return 0
 
 # GIF
-# GIFs are weird. These are animated gifs and so we need to find every frame of the animation all the way to the end of the file. We have to do this iteratively
 
 
 def GIFRecovery():
@@ -278,7 +279,8 @@ def JPGRecovery():
             while True:
                 # Locating the JPG header then checking whether it is at the start of a sector
                 index = s.index(b'\xFF\xD8', index)
-                if(index % 512 != 0):
+                # I changed the number here from 0x100 to 0x1000 and now it is only finding the valid JPG files
+                if(index % 0x1000 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
