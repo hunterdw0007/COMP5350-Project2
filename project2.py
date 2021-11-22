@@ -10,6 +10,7 @@
 # https://www.ntfs.com/gif-signature-format.htm
 # http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html
 # https://www.geeksforgeeks.org/python-continue-statement/
+# https://www.geeksforgeeks.org/python-measure-time-taken-by-program-to-execute/
 
 # Recovery Steps
 # 1. Scan disk image to find index of file header which is the start offset
