@@ -231,6 +231,41 @@ def GIFRecovery():
 
 
 def JPGRecovery():
+    print('\nJPG Files:\n')
+    with open(filename, 'rb') as f:
+
+        s = f.read()
+        try:
+            index = 0
+            count = 0
+            while True:
+                # Locating the JPG header then checking whether it is at the start of a sector
+                index = s.index(b'\xFF\xD8', index)
+                if(index % 512 != 0):
+                    break
+                print('Start Offset: ' + hex(index))
+
+                # Finding File Size
+                # JPG has a footer then I add some zeroes to make sure it is actually the end of the file
+                end_index = s.index(
+                    b'\xFF\xD9\x00\x00\x00\x00', index) + 1
+                print('End Offset: ' + hex(end_index))
+
+                # Writing the file
+                written_file = open("jpg-" + str(count) + ".jpg", "wb")
+                written_file.write(s[index:end_index + 1])
+                written_file.close()
+                print('File Written')
+
+                # Hashing the bytes which make up the file
+                hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
+                print('SHA-256: ' + hash)
+                index += 4
+                count += 1
+                print()
+        except ValueError:
+            print("EOF")
+        print('Found ' + str(count) + ' file(s)')
     return 0
 
 # DOCX
@@ -368,7 +403,7 @@ print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 PDFRecovery()   # Done
 BMPRecovery()
 GIFRecovery()   # Done - sort of
-JPGRecovery()
+JPGRecovery()   # Done
 DOCXRecovery()  # Done
 AVIRecovery()   # Done
 PNGRecovery()   # Done - strange behavior
