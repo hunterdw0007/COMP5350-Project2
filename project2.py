@@ -347,7 +347,6 @@ def DOCXRecovery():
                 if(index % 0x1000 != 0):
                     index += 8
                     continue
-                print('Start Offset: ' + hex(index))
 
                 # Finding File Size
                 # DOCX has a footer which is followed by 18 bytes then the file is ended
