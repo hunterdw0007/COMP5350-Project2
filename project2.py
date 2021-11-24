@@ -54,7 +54,7 @@ def MPGRecovery():
         try:
             while True:
                 index = s.index(b'', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     break
                 print('Start Offset: ' + hex(index))
                 index += 4
@@ -83,7 +83,7 @@ def PDFRecovery():
             # This loop finds the start index of the files
             while True:
                 index = s.index(b'\x25\x50\x44\x46', index)
-                if (index % 0x800 != 0):
+                if (index % 0x1000 != 0):
                     index += 4
                     continue
                 start_locations.append(index)
@@ -170,7 +170,7 @@ def BMPRecovery():
             while True:
                 # Locating the BMP header then checking whether it is at the start of a sector
                 index = s.index(b'\x42\x4D', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
@@ -214,7 +214,7 @@ def GIFRecovery():
             while True:
                 # Locating the GIF89a header then checking whether it is at the start of a sector
                 index = s.index(b'\x47\x49\x46\x38\x39\x61', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 6
                     continue
 
@@ -296,7 +296,7 @@ def JPGRecovery():
             while True:
                 # Locating the JPG header then checking whether it is at the start of a sector
                 index = s.index(b'\xFF\xD8', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 2
                     continue
                 print('Start Offset: ' + hex(index))
@@ -344,7 +344,7 @@ def DOCXRecovery():
             while True:
                 # Locating the DOCX header then checking whether it is at the start of a sector
                 index = s.index(b'\x50\x4B\x03\x04\x14\x00\x06\x00', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 8
                     continue
                 print('Start Offset: ' + hex(index))
@@ -395,7 +395,7 @@ def AVIRecovery():
                 if(index + 8 != s.index(b'\x41\x56\x49\x20\x4C\x49\x53\x54', index)):
                     index += 4
                     continue
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 4
                     continue
                 print('Start Offset: ' + hex(index))
@@ -440,7 +440,7 @@ def PNGRecovery():
             while True:
                 # Locating the PNG header then checking whether it is at the start of a sector
                 index = s.index(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A', index)
-                if(index % 0x800 != 0):
+                if(index % 0x1000 != 0):
                     index += 8
                     continue
 
