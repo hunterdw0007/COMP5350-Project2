@@ -55,6 +55,7 @@ def MPGRecovery():
             while True:
                 index = s.index(b'', index)
                 if(index % 0x1000 != 0):
+                    index += 4
                     break
                 print('Start Offset: ' + hex(index))
                 index += 4
@@ -299,7 +300,6 @@ def JPGRecovery():
                 if(index % 0x1000 != 0):
                     index += 2
                     continue
-                print('Start Offset: ' + hex(index))
 
                 # Finding File Size
                 # JPG has a footer then I add some zeroes to make sure it is actually the end of the file
@@ -477,7 +477,7 @@ def PNGRecovery():
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 
-#total_found += MPGRecovery()
+total_found += MPGRecovery()
 total_found += PDFRecovery()   # Done
 total_found += BMPRecovery()   # Done - finding extra file
 total_found += GIFRecovery()   # Done - sort of
