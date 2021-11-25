@@ -18,7 +18,7 @@
 # 3. Use the file size/footer location to calculate the end offset
 # 4. Collect the specified bytes and write those to a file
 # 5. Find the SHA-256 of the bytes
-# 6. Set index to the end of the current file and continue looking. 
+# 6. Set index to the end of the current file and continue looking.
 #       If it reaches the EOF then an exception is called and we end the loop
 
 # imports
@@ -35,9 +35,6 @@ filename = sys.argv[1]
 
 # finding the size of the disk image for later use
 image_size = os.path.getsize(filename)
-
-# Variable for total number of files found
-total_found = 0
 
 # MPG
 # TODO make this one work
@@ -76,7 +73,7 @@ def PDFRecovery():
     start_locations = []
 
     with open(filename, 'rb') as f:
-        
+
         index = 0
         count = 0
         s = f.read()
@@ -167,7 +164,7 @@ def BMPRecovery():
         index = 0
         count = 0
         try:
-            
+
             while True:
                 # Locating the BMP header then checking whether it is at the start of a sector
                 index = s.index(b'\x42\x4D', index)
@@ -293,7 +290,7 @@ def JPGRecovery():
         index = 0
         count = 0
         try:
-            
+
             while True:
                 # Locating the JPG header then checking whether it is at the start of a sector
                 index = s.index(b'\xFF\xD8', index)
@@ -340,7 +337,7 @@ def DOCXRecovery():
         index = 0
         count = 0
         try:
-            
+
             while True:
                 # Locating the DOCX header then checking whether it is at the start of a sector
                 index = s.index(b'\x50\x4B\x03\x04\x14\x00\x06\x00', index)
@@ -387,7 +384,7 @@ def AVIRecovery():
         index = 0
         count = 0
         try:
-            
+
             while True:
                 # Locating the RIFF header then checking whether it is an AVI and at the start of a sector
                 index = s.index(b'\x52\x49\x46\x46', index)
@@ -435,7 +432,7 @@ def PNGRecovery():
         index = 0
         count = 0
         try:
-            
+
             while True:
                 # Locating the PNG header then checking whether it is at the start of a sector
                 index = s.index(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A', index)
@@ -471,19 +468,21 @@ def PNGRecovery():
         print('Found ' + str(count) + ' file(s)')
     return count
 
-# Runner code
+# Main method
 
 
 print('Disk size is: ' + str(hex(image_size)) + ' bytes')
 
-total_found += MPGRecovery()
-total_found += PDFRecovery()   # Done
-total_found += BMPRecovery()   # Done - finding extra file
-total_found += GIFRecovery()   # Done - sort of
-total_found += JPGRecovery()   # Done
-total_found += DOCXRecovery()  # Done
-total_found += AVIRecovery()   # Done
-total_found += PNGRecovery()   # Done
+# Counts the total number of files found
+total_found = 0
+total_found += MPGRecovery()    # Need Help
+total_found += PDFRecovery()    # Done
+total_found += BMPRecovery()    # Done - finding extra file
+total_found += GIFRecovery()    # Done - sort of
+total_found += JPGRecovery()    # Done
+total_found += DOCXRecovery()   # Done
+total_found += AVIRecovery()    # Done
+total_found += PNGRecovery()    # Done
 
 print('\nTotal number of files found: ' + str(total_found))
 
