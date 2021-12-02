@@ -50,12 +50,26 @@ def MPGRecovery():
         count = 0
         try:
             while True:
-                index = s.index(b'', index)
+                index = s.index(b'\x00\x00\x01\xB3', index)
                 if(index % 0x1000 != 0):
                     index += 4
-                    break
+                    continue
                 print('Start Offset: ' + hex(index))
-                index += 4
+
+                end_index = s.index(b'\x00\x00\x01\xB7', index) + 3
+                print('End Offset: ' + hex(end_index))
+                # Writing the file
+                written_file = open("mpg-" + str(count) + ".mpg", "wb")
+                written_file.write(s[index:end_index + 1])
+                written_file.close()
+                print('File Written')
+
+                # Hashing the bytes which make up the file
+                hash = hashlib.sha256(
+                    s[index:end_index + 1]).hexdigest()
+                print('SHA-256: ' + hash)
+
+                index = end_index
                 count += 1
         except ValueError:
             print("EOF")
@@ -176,6 +190,11 @@ def BMPRecovery():
                 # Finding File Size
                 # File size in BMP is bytes 2-5
                 bmp_size = int.from_bytes(s[index + 2:index + 6], 'little')
+                
+                # I had to add this in because I was finding a bmp that has a file size a whole order of magnitude larger than the Project2.dd is
+                if(bmp_size > image_size):
+                    index += 2
+                    continue
                 print('End Offset: ' + hex(index + bmp_size))
 
                 # Writing the file
@@ -216,44 +235,7 @@ def GIFRecovery():
                     index += 6
                     continue
 
-                # # Finding File Size
-                # offset = 0
-                # end_index = 0
-                # # Getting offset of the first block from the file header information
-                # if(s[index + 0x0A] >= 0b10000000):
-                #     offset = (1 <<((s[index + 0x0A] & 0x09) + 1)) * 3
-                # offset = offset + 13
-
-                # # This interates through the gif looking for the 0x3B that signifies the end of the file
-                # # The reason it has to be done this way is because a GIF works in blocks of data so the 0x3B has to be at the beginning of a block
-                # # Blocks are calculated based on the locations of other blocks and sub-blocks
-                # while end_index == 0:
-
-                #     # Extension blocks
-                #     if(s[offset:offset + 2] == 0x2101):
-                #         offset = offset + 2
-                #     if(s[offset:offset + 2] == 0x21F9):
-                #         offset = offset + 2
-                #     if(s[offset:offset + 2] == 0x21FF):
-                #         offset = offset + 2
-                #     # Image block - can contain header which is the first if, otherwise it can have a variable number of sub-blocks which the second if calculates
-                #     elif(s[offset] == 0x2C):
-                #         if(s[offset + 0x0B] >= 0b10000000):
-                #             offset = (1 <<((hex(s[offset + 0x0B]) & 0x07) + 1)) * 3
-                #         else:
-                #             offset = offset + 0x0B + 1
-                #             while s[offset] != 0x00:
-                #                 offset = offset + s[offset]
-                #             offset = offset + 1
-                #     # EOF marker - set end_index and break loop
-                #     elif(s[offset] == 0x3B):
-                #         end_index = offset
-                #     else:
-                #         print('Marker Not Found at ' + hex(offset))
-                #         break
-
                 # I think that I cheesed it by just putting some zeroes after the 3B but idk if that's okay for the final project
-                # Technically this works but at the same time it's kind of cheating
                 end_index = s.index(b'\x00\x3B\x00\x00\x00', index) + 1
 
                 # Printing the information
