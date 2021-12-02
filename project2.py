@@ -74,6 +74,7 @@ def MPGRecovery():
 
                 index = end_index
                 count += 1
+                print()
         except ValueError:
             print("EOF")
         print('Found ' + str(count) + (' file' if count == 1 else ' files'))
