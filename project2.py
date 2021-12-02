@@ -17,12 +17,14 @@
 
 # Recovery Steps
 # 1. Scan disk image to find index of file header which is the start offset
+#   a. Check whether the index is at a multiple of 0x1000 which is the start of a sector, if it is not then move past it and continue looking
 # 2. Use the properties of the header to find the file size of that file or find the footer
+#   a. This is especially difficult in the PDF and comments there explain the process in detail
 # 3. Use the file size/footer location to calculate the end offset
 # 4. Collect the specified bytes and write those to a file
 # 5. Find the SHA-256 of the bytes
 # 6. Set index to the end of the current file and continue looking.
-#       If it reaches the EOF then an exception is called and we end the loop
+#   a. If it reaches the EOF for the disk then an exception is called and we end the loop
 
 # imports
 import sys
@@ -48,13 +50,14 @@ def MPGRecovery():
         count = 0
         try:
             while True:
-                # Locating the MPG header
+                # Locating the MPG header and then checking whether it is at the start of a sector
                 index = s.index(b'\x00\x00\x01\xB3', index)
                 if(index % 0x1000 != 0):
                     index += 4
                     continue
                 print('Start Offset: ' + hex(index))
 
+                # Locating the MPG footer location
                 end_index = s.index(b'\x00\x00\x01\xB7', index) + 3
                 print('End Offset: ' + hex(end_index))
 
@@ -108,6 +111,8 @@ def PDFRecovery():
         for start_location in start_locations:
             eof_location = start_location
             stop_point = 0
+
+            # The last stop point will be at the end of the image, all other stop points will be at the start of the following file
             if(start_location == start_locations[-1]):
                 stop_point = image_size
             else:
