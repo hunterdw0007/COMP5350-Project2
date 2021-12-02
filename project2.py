@@ -65,7 +65,7 @@ def MPGRecovery():
                 written_file = open("mpg-" + str(count) + ".mpg", "wb")
                 written_file.write(s[index:end_index + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to mpg-' + str(count) + ".mpg")
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(
@@ -163,7 +163,7 @@ def PDFRecovery():
                 "pdf-" + str(start_locations.index(start_location)) + ".pdf", "wb")
             written_file.write(s[start_location:eof_location + 1])
             written_file.close()
-            print('File Written')
+            print('File Written to pdf-' + str(start_locations.index(start_location)) + ".pdf")
 
             # Hashing the bytes which make up the file
             hash = hashlib.sha256(
@@ -209,7 +209,7 @@ def BMPRecovery():
                 written_file = open("bmp-" + str(count) + ".bmp", "wb")
                 written_file.write(s[index:index + bmp_size + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to bmp-' + str(count) + '.bmp')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(
@@ -254,7 +254,7 @@ def GIFRecovery():
                 written_file = open("gif-" + str(count) + ".gif", "wb")
                 written_file.write(s[index:end_index + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to gif-' + str(count) + '.gif')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
@@ -301,7 +301,7 @@ def JPGRecovery():
                 written_file = open("jpg-" + str(count) + ".jpg", "wb")
                 written_file.write(s[index:end_index + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to jpg-' + str(count) + '.jpg')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
@@ -348,7 +348,7 @@ def DOCXRecovery():
                 written_file = open("docx-" + str(count) + ".docx", "wb")
                 written_file.write(s[index:end_index + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to docx-' + str(count) + '.docx')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
@@ -395,7 +395,7 @@ def AVIRecovery():
                 written_file = open("avi-" + str(count) + ".avi", "wb")
                 written_file.write(s[index:index + avi_size + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to avi-' + str(count) + '.avi')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(
@@ -443,7 +443,7 @@ def PNGRecovery():
                 written_file = open("png-" + str(count) + ".png", "wb")
                 written_file.write(s[index:end_index + 1])
                 written_file.close()
-                print('File Written')
+                print('File Written to png-' + str(count) + '.png')
 
                 # Hashing the bytes which make up the file
                 hash = hashlib.sha256(s[index:end_index + 1]).hexdigest()
