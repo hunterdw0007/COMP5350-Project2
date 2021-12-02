@@ -27,9 +27,6 @@ import os
 import hashlib
 import time
 
-# For runtime calculation
-begin = time.time()
-
 # this is where the name of the disk image will come in
 filename = sys.argv[1]
 
@@ -37,12 +34,10 @@ filename = sys.argv[1]
 image_size = os.path.getsize(filename)
 
 # MPG
-# TODO make this one work
-# I cannot figure this one out
 
 
 def MPGRecovery():
-    print('\nMPG Files:')
+    print('\nMPG Files:\n')
     with open(filename, 'rb') as f:
 
         s = f.read()
@@ -50,6 +45,7 @@ def MPGRecovery():
         count = 0
         try:
             while True:
+                # Locating the MPG header
                 index = s.index(b'\x00\x00\x01\xB3', index)
                 if(index % 0x1000 != 0):
                     index += 4
@@ -58,6 +54,7 @@ def MPGRecovery():
 
                 end_index = s.index(b'\x00\x00\x01\xB7', index) + 3
                 print('End Offset: ' + hex(end_index))
+
                 # Writing the file
                 written_file = open("mpg-" + str(count) + ".mpg", "wb")
                 written_file.write(s[index:end_index + 1])
@@ -73,9 +70,9 @@ def MPGRecovery():
                 count += 1
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' files')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
 
-    return 0
+    return count
 
 # PDF
 
@@ -164,7 +161,7 @@ def PDFRecovery():
                 s[start_location:eof_location + 1]).hexdigest()
             print('SHA-256: ' + hash)
             print()
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # BMP
@@ -185,16 +182,18 @@ def BMPRecovery():
                 if(index % 0x1000 != 0):
                     index += 2
                     continue
-                print('Start Offset: ' + hex(index))
 
                 # Finding File Size
                 # File size in BMP is bytes 2-5
                 bmp_size = int.from_bytes(s[index + 2:index + 6], 'little')
-                
+
                 # I had to add this in because I was finding a bmp that has a file size a whole order of magnitude larger than the Project2.dd is
                 if(bmp_size > image_size):
                     index += 2
                     continue
+
+                # Printing output only if valid file has been found
+                print('Start Offset: ' + hex(index))
                 print('End Offset: ' + hex(index + bmp_size))
 
                 # Writing the file
@@ -214,7 +213,7 @@ def BMPRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # GIF
@@ -258,7 +257,7 @@ def GIFRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # JPG
@@ -305,7 +304,7 @@ def JPGRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # DOCX
@@ -352,7 +351,7 @@ def DOCXRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # AVI
@@ -400,7 +399,7 @@ def AVIRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # PNG
@@ -447,16 +446,20 @@ def PNGRecovery():
                 print()
         except ValueError:
             print("EOF")
-        print('Found ' + str(count) + ' file(s)')
+        print('Found ' + str(count) + (' file' if count == 1 else ' files'))
     return count
 
 # Main method
 
 
-print('Disk size is: ' + str(hex(image_size)) + ' bytes')
+print('\nCOMP 5350 Project 2')
+print('\nHunter Westerlund and Charlotte Vance')
+print('\nDisk size is: ' + str(hex(image_size)) + ' bytes')
+print('\n==================================================')
 
 # Counts the total number of files found
 total_found = 0
+begin = time.time()
 total_found += MPGRecovery()    # Need Help
 total_found += PDFRecovery()    # Done
 total_found += BMPRecovery()    # Done - finding extra file
@@ -465,9 +468,10 @@ total_found += JPGRecovery()    # Done
 total_found += DOCXRecovery()   # Done
 total_found += AVIRecovery()    # Done
 total_found += PNGRecovery()    # Done
-
-print('\nTotal number of files found: ' + str(total_found))
-
 end = time.time()
 
+print('\n==================================================')
+print('\nTotal number of files found: ' + str(total_found))
+
+# Calculating the speed of the program
 print(f'\nTime to find all {total_found} files was {end-begin} seconds')
