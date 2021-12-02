@@ -1,6 +1,9 @@
 # Hunter Westerlund and Charlotte Vance
 # COMP 5350 Project 2
 
+# This script is written using Python 3 and it will not run using Python 2
+# Run command is: python3 project2.py Project2.dd
+
 # References
 # https://www.reddit.com/r/learnpython/comments/6m7ptm/find_hexadecimal_offset_of_certain_bytes_in/
 # https://stackoverflow.com/questions/27001419/how-to-append-to-bytes-in-python-3
