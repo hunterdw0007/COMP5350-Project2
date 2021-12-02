@@ -116,6 +116,7 @@ def PDFRecovery():
             changed = True
             while changed:
                 curr_eof = eof_location
+                # There are four different footers for a PDF file so we have to check each one
                 try:
                     if(s.index(b'\x0A\x25\x25\x45\x4F\x46', eof_location) < stop_point):
                         eof_location = s.index(
